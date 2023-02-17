@@ -2,6 +2,7 @@ import Koa from "koa"
 import bodyParser from "koa-bodyparser"
 import root from "./router/index.js"
 import {ChatGPTClient} from "@waylaidwanderer/chatgpt-api"
+import { bearerToken } from "koa-bearer-token"
 
 
 function createApp(config) {
@@ -19,6 +20,8 @@ function createApp(config) {
   }, {
 
   });
+
+  app.use(bearerToken());
 
   app.use(bodyParser());
 

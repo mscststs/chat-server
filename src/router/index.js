@@ -1,5 +1,5 @@
 import Router from "koa-router"
-
+import bearerAuth from "../middleware/bearerAuth.js";
 
 const stash = {};
 
@@ -13,7 +13,7 @@ root.get('/', async (ctx) => {
   ctx.body = 'OK';
 });
 
-root.post("/message",async (ctx)=>{
+root.post("/message", bearerAuth, async (ctx)=>{
   const user = ctx.query.user;
   const {text} = ctx.request.body;
   if(!text){
@@ -40,7 +40,7 @@ root.post("/message",async (ctx)=>{
 
 })
 
-root.get("/new", async (ctx) =>{
+root.get("/new", bearerAuth, async (ctx) =>{
   const user = ctx.query.user;
   stash[user] = null;
   ctx.body = "重置会话成功"
