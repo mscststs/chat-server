@@ -1,6 +1,7 @@
-const http = require('http');
-const createApp = require('./app');
-const readConfig = require('./config');
+
+import http from "node:http"
+import createApp from "./app.js"
+import readConfig from "./config.js"
 
 const servers = [];
 
@@ -18,4 +19,4 @@ async function init() {
   }
 }
 
-module.exports = init;
+export default init;

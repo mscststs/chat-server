@@ -1,15 +1,24 @@
-const Koa = require('koa');
-const bodyParser = require('koa-bodyparser');
-const root = require('./router');
-const {ChatGPTClient} = require("@waylaidwanderer/chatgpt-api");
+import Koa from "koa"
+import bodyParser from "koa-bodyparser"
+import root from "./router/index.js"
+import {ChatGPTClient} from "@waylaidwanderer/chatgpt-api"
+
 
 function createApp(config) {
   const app = new Koa();
 
   app.context.config = config;
+
   app.context.chatGptClient = new ChatGPTClient(config.chatgpt.key, {
+    modelOptions: {
+      model: config.chatgpt.model
+    },
+    promptPrefix:`You are ${config.chatgpt.assistantLabel}, a large language model trained by OpenAI. ${config.chatgpt.promptPrefix}.
+    Current date: ${new Date().toISOString().split('T')[0]}`,
     debug:false,
-  }, {});
+  }, {
+
+  });
 
   app.use(bodyParser());
 
@@ -19,4 +28,4 @@ function createApp(config) {
   return app.callback();
 }
 
-module.exports = createApp;
+export default createApp;

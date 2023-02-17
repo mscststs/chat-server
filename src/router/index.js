@@ -1,4 +1,4 @@
-const Router = require('koa-router');
+import Router from "koa-router"
 
 
 const stash = {};
@@ -19,23 +19,31 @@ root.post("/message",async (ctx)=>{
   if(!text){
     throw new Error(500);
   }
+  try{
+    const res = await ctx.chatGptClient.sendMessage(
+      text,
+      stash[user] ? {
+        conversationId: stash[user].conversationId,
+        parentMessageId: stash[user].messageId,
+      } : undefined
+    );
+    stash[user] = res;
+    ctx.body = res;
+  }catch(e){
+    console.error("error",e)
+    ctx.body = {
+      response: 'Error: ' + e.message,
+      code: -1
+    }
+  }
 
-  const res = await chatGptClient.sendMessage(
-    text,
-    stash[user] ? {
-      conversationId: stash[user].conversationId,
-      parentMessageId: stash[user].messageId,
-    } : undefined
-  );
-
-  stash[user] = res;
-  ctx.body = res;
 
 })
 
 root.get("/new", async (ctx) =>{
   const user = ctx.query.user;
   stash[user] = null;
+  ctx.body = "重置会话成功"
 });
 
-module.exports = root;
+export default root;

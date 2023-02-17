@@ -1,4 +1,4 @@
-const fs = require('fs');
+import fs from "node:fs"
 
 function readFile(...params) {
   return new Promise((resolve, reject) => {
@@ -14,7 +14,7 @@ function readFile(...params) {
 
 let conf = null;
 
-module.exports = async function readConfig(filePath = './config.json') {
+export default async function readConfig(filePath = './config.json') {
   if (conf) {
     return conf;
   }
