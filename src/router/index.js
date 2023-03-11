@@ -22,6 +22,7 @@ root.get('/', async (ctx) => {
 
 root.post("/message", bearerAuth, async (ctx)=>{
   const user = ctx.query.user || 'user';
+  const key = `${user}`;
   const msgId = ctx.query.msgId || user + Date.now();
   const {text} = ctx.request.body;
   if(!text){
@@ -33,16 +34,16 @@ root.post("/message", bearerAuth, async (ctx)=>{
       console.log("新建请求")
       msgCache[msgId] = ctx.chatGptClient.sendMessage(
         text,
-        stash[user] ? {
-          conversationId: stash[user].conversationId,
-          parentMessageId: stash[user].messageId,
+        stash[key] ? {
+          conversationId: stash[key].conversationId,
+          parentMessageId: stash[key].messageId,
         } : undefined
       );
     }else{
       console.log("从 msgId 恢复请求进度")
     }
     const res = await msgCache[msgId]
-    stash[user] = res;
+    stash[key] = res;
     ctx.body = res;
   }catch(e){
     console.error("error",e)
@@ -51,13 +52,55 @@ root.post("/message", bearerAuth, async (ctx)=>{
       code: -1
     }
   }
+})
 
 
+root.post("/message/bing", bearerAuth, async (ctx)=>{
+  const user = ctx.query.user || 'user';
+  const key = `${user}:bing`;
+  const msgId = ctx.query.msgId || user + Date.now();
+  const {text} = ctx.request.body;
+  if(!text){
+    throw new Error(500);
+  }
+  console.log("Message Received:", user, text, msgId);
+  try{
+    if(!msgCache[msgId]){
+      console.log("新建请求")
+      msgCache[msgId] = ctx.newBingClient.sendMessage(
+        text,
+        stash[key] ? {
+          jailbreakConversationId: stash[key].jailbreakConversationId,
+          parentMessageId: stash[key].messageId,
+        } : {
+          jailbreakConversationId:true
+        }
+      );
+    }else{
+      console.log("从 msgId 恢复请求进度")
+    }
+    const res = await msgCache[msgId]
+    stash[key] = res;
+    ctx.body = res;
+  }catch(e){
+    console.error("error",e)
+    ctx.body = {
+      response: 'Error: ' + e.message,
+      code: -1
+    }
+  }
 })
 
 root.get("/new", bearerAuth, async (ctx) =>{
   const user = ctx.query.user;
   stash[user] = null;
+  ctx.body = "重置会话成功"
+});
+
+root.get("/new/bing", bearerAuth, async (ctx) =>{
+  const user = ctx.query.user;
+  const key = `${user}:bing`;
+  stash[key] = null;
   ctx.body = "重置会话成功"
 });
 

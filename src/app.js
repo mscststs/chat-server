@@ -1,7 +1,7 @@
 import Koa from "koa"
 import bodyParser from "koa-bodyparser"
 import root from "./router/index.js"
-import {ChatGPTClient} from "@waylaidwanderer/chatgpt-api"
+import {ChatGPTClient, BingAIClient } from "@waylaidwanderer/chatgpt-api"
 import { bearerToken } from "koa-bearer-token"
 
 
@@ -20,6 +20,10 @@ function createApp(config) {
   }, {
 
   });
+
+  app.context.newBingClient = new BingAIClient({
+    ...config.bing
+  })
 
   app.use(bearerToken());
 
