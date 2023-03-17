@@ -58,7 +58,7 @@ root.post("/message", bearerAuth, async (ctx)=>{
 root.post("/message/bing", bearerAuth, async (ctx)=>{
   const user = ctx.query.user || 'user';
   const key = `${user}:bing`;
-  const msgId = ctx.query.msgId || user + Date.now();
+  const msgId = `${ctx.query.msgId || user + Date.now()}:bing`;
   const {text} = ctx.request.body;
   if(!text){
     throw new Error(500);
